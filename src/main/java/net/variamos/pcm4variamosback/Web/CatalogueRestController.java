@@ -4,6 +4,8 @@ import net.variamos.pcm4variamosback.Dao.ProductRepository;
 import net.variamos.pcm4variamosback.Entities.Product;
 import org.springframework.data.rest.webmvc.ResourceNotFoundException;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -46,6 +48,26 @@ public class CatalogueRestController {
         response.put("deleted", Boolean.TRUE);
         return response;
     }
+
+    @PutMapping("/products/{id}")
+    public ResponseEntity<Product> updateProduct(@PathVariable(value = "id") Long productId,
+                                                  @RequestBody Product productDetails) throws ResourceNotFoundException {
+        Product product = productRepository.findById(productId)
+                .orElseThrow(() -> new ResourceNotFoundException("Employee not found for this id :: " + productId));
+
+        product.setName(productDetails.getName());
+        product.setDescription(productDetails.getDescription());
+        product.setCurentPrice(productDetails.getCurentPrice());
+
+        final Product updatedProduct = productRepository.save(product);
+        return ResponseEntity.ok(updatedProduct);
+    }
+
+    @PostMapping("/createProduct")
+    public Product createProduct( @RequestBody Product product) {
+        return productRepository.save(product);
+    }
+
 
 
 }
